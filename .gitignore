@@ -1,0 +1,8 @@
+# ignore pycharm
+*.idea
+*.csv
+*.txt
+*.png
+*tb_kline_m5.csv
+*.pyc
+*.xlxs
