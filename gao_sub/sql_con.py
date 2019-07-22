@@ -29,7 +29,7 @@ class Sql_oracle:
         # 线上
         # '172.16.125.222'
 
-        [userName, password, hostIP, dbName] = ['pra_info', 'pra_info', '172.16.126.23:1521', 'pra']
+        [userName, password, hostIP, dbName] = ['pra_info', 'pra_info', '172.16.125.222', 'pra']
         self.fund_db_pra = cx_Oracle.connect(user=userName, password=password, dsn=hostIP + '/' + dbName)
         self.cu_pra_sel = self.fund_db_pra.cursor()
 

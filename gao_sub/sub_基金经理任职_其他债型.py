@@ -327,7 +327,7 @@ for i in data_kind.index:
                     begin_date=get_tradedate(tansferdate)
 
 
-        # 添加重复计算
+        # 计算每个年度
         date_iter = deal_time(str(begin_date), str(end_date))
         for year, date in date_iter:
             print("year: start, end", year, date[0], date[1])
@@ -339,7 +339,6 @@ for i in data_kind.index:
                         ''' % {'fundmanager': fund_manager.values[j][1],'fund_code': fund_code,'cycle_value': str(begin_date)[0:4]}
 
             if(len(cu1.execute(exists_sql).fetchall())==0):
-
                 try:
                     # 日期转化
                     cou_begin_date = get_tradedate(begin_date)
@@ -384,7 +383,64 @@ for i in data_kind.index:
                 except:
                     pass
             else:
-                print('已计算')
+                print('{}年度已计算'.format(year))
+
+        # 计算任期
+        begin_date = fund_manager.values[j][2]
+        end_date = fund_manager.values[j][3]
+
+
+        exists_sql = '''select  *  from MANAGER_INFO_RANK_bak t
+                          where t.fundmanager = '%(fundmanager)s' and t.fundcode = '%(fund_code)s' and t.cycle_value = '%(cycle_value)s'
+                       ''' % {'fundmanager': fund_manager.values[j][1], 'fund_code': fund_code,
+                              'cycle_value': '0'}
+
+        if (len(cu1.execute(exists_sql).fetchall()) == 0):
+            try:
+                # 日期转化
+                cou_begin_date = get_tradedate(begin_date)
+                cou_end_date = get_tradedate(end_date)
+
+                result_hc = get_max_down_rank(fund_manager.values[j][0], cou_begin_date, cou_end_date)
+                result_nhbd = zhoubodong_rank(fund_manager.values[j][0], cou_begin_date, cou_end_date)
+                result_hb = shouyi_rate_rank(fund_manager.values[j][0], cou_begin_date, cou_end_date)
+                # print(result_hc)
+                # print(result_nhbd)
+                # print(result_hb)
+                rrin_hc = result_hc[0]
+                rrin_hc_rank = result_hc[1]
+                rrin_nhbd = result_nhbd[0]
+                rrin_nhbd_rank = result_nhbd[1]
+                rrin_hb = result_hb[0]
+                rrin_hb_rank = result_hb[1]
+                rec = []
+                rec.append(data_kind.基金代码[i])
+                rec.append(data_kind.基金简称[i])
+                rec.append(data_kind.二级分类[i])
+                rec.append(fund_manager.values[j][1])
+                rec.append(0)
+                rec.append('0')
+                rec.append(result_hc[0])
+                rec.append(result_hc[1])
+                rec.append(result_nhbd[0])
+                rec.append(result_nhbd[1])
+                rec.append(result_hb[0])
+                rec.append(result_hb[1])
+                rec.append(fund_manager.values[j][2])
+                rec.append(fund_manager.values[j][3])
+                rec.append(data_kind.成立日[i])
+                rec.append(fund_manager.values[j][4])
+                insert_sql = "INSERT INTO MANAGER_INFO_RANK_bak( fundcode, fundname,fundtype, fundmanager,cycle_type,cycle_value,rrin_hc,rrin_hc_rank," \
+                             "rrin_nhbd,rrin_nhbd_rank,rrin_hb,rrin_hb_rank,manager_startdate,manager_enddate,founddate,fund_manager_id) VALUES(:1, :2, :3,:4,:5,:6,:7,:8,:9,:10,:11,:12,:13,:14,:15,:16)"
+                # print(rec)
+                cu1.execute(insert_sql, rec)
+                fund_db_pra.commit()
+                rec.clear()
+            except:
+                pass
+        else:
+            print('任期已经计算'.format(year))
+
 cu.close()
 cu1.close()
 fund_db_pra.close()

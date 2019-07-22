@@ -416,7 +416,7 @@ for i in data_kind.index:
         end_date = manager_enddate
 
 
-        # 添加重复计算
+        # 计算每年
         date_iter = deal_time(str(begin_date), str(manager_enddate))
         for year, date in date_iter:
             print("year: start, end", year, date[0], date[1])
@@ -430,14 +430,18 @@ for i in data_kind.index:
                 'fund_code': fund_benchmark, 'fundmanager': fund_manager.values[j][1], 'trade_date': trade_date}
             manager_performance = pd.DataFrame(cu1.execute(record_sql).fetchall())
 
+            # 判断该年度是否已经计算
             flag = manager_performance.empty
+            if (not flag):
+                print('{}年度已计算'.format(year))
+
+
+            # 开始 结束 日期 转化为交易日
             if (get_tradedate(begin_date) != 0):
                 begin_date = get_tradedate(begin_date)
             if (get_tradedate(end_date) != 0):
                 end_date = get_tradedate(end_date)
 
-            if (not flag):
-                print('年度已计算')
 
             else:
                 result_hc = max_down_fund(benchmark_code, begin_date, end_date)

@@ -313,8 +313,10 @@ for i in data_kind.index:
                and t1.f16_1090 = '%(fund_code)s'    order by t.f3_1272
             '''%{'fund_code':fund_code}
     fund_manager = pd.DataFrame(cu.execute(query_sql).fetchall())
-    print(fund_manager)
+
+
     for j in range(len(fund_manager.values)):
+
         begin_date=fund_manager.values[j][2]
         if (data_kind.成立日[i] == begin_date):
             begin_date = get_tradedate(begin_date)
@@ -340,7 +342,7 @@ for i in data_kind.index:
         if(not flag):
             print(manager_performance.values[0][0])
             if(manager_performance.values[0][0] != '0'):
-                print('任期已计算')
+                print('年度已计算')
             else:
                     result_hc = get_max_down_rank(fund_manager.values[j][0], begin_date, end_date)
                     result_nhbd = zhoubodong_rank(fund_manager.values[j][0], begin_date, end_date)
@@ -385,33 +387,34 @@ for i in data_kind.index:
 
 
         else:
-                rec = []
-                result_hc = get_max_down_rank(fund_manager.values[j][0], begin_date, end_date)
-                result_nhbd = zhoubodong_rank(fund_manager.values[j][0], begin_date, end_date)
-                result_hb = shouyi_rate_rank(fund_manager.values[j][0], begin_date, end_date)
-                print(result_hc)
-                print(result_nhbd)
-                print(result_hb)
-                rec.append(data_kind.基金代码[i])
-                rec.append(data_kind.基金简称[i])
-                rec.append(data_kind.二级分类[i])
-                rec.append(fund_manager.values[j][1])
-                rec.append('0')
-                rec.append(result_hc[0])
-                rec.append(result_hc[1])
-                rec.append(result_nhbd[0])
-                rec.append(result_nhbd[1])
-                rec.append(result_hb[0])
-                rec.append(result_hb[1])
-                rec.append(fund_manager.values[j][2])
-                rec.append(fund_manager.values[j][3])
-                rec.append(data_kind.成立日[i])
-                rec.append(fund_manager.values[j][4])
-                print(rec)
-                insert_sql = "INSERT INTO FUND_PERFORMANCE_RANK( fundcode, fundname,fundtype, fundmanager,cycle_type,rrin_hc,rrin_hc_rank," \
-                             "rrin_nhbd,rrin_nhbd_rank,rrin_hb,rrin_hb_rank,manager_startdate,manager_enddate,founddate,fund_manager_id) VALUES(:1, :2, :3,:4,:5,:6,:7,:8,:9,:10,:11,:12,:13,:14,:15)"
-                cu1.execute(insert_sql, rec)
-                fund_db_pra.commit()
+
+            rec = []
+            result_hc = get_max_down_rank(fund_manager.values[j][0], begin_date, end_date)
+            result_nhbd = zhoubodong_rank(fund_manager.values[j][0], begin_date, end_date)
+            result_hb = shouyi_rate_rank(fund_manager.values[j][0], begin_date, end_date)
+            print(result_hc)
+            print(result_nhbd)
+            print(result_hb)
+            rec.append(data_kind.基金代码[i])
+            rec.append(data_kind.基金简称[i])
+            rec.append(data_kind.二级分类[i])
+            rec.append(fund_manager.values[j][1])
+            rec.append('0')
+            rec.append(result_hc[0])
+            rec.append(result_hc[1])
+            rec.append(result_nhbd[0])
+            rec.append(result_nhbd[1])
+            rec.append(result_hb[0])
+            rec.append(result_hb[1])
+            rec.append(fund_manager.values[j][2])
+            rec.append(fund_manager.values[j][3])
+            rec.append(data_kind.成立日[i])
+            rec.append(fund_manager.values[j][4])
+            print(rec)
+            insert_sql = "INSERT INTO FUND_PERFORMANCE_RANK( fundcode, fundname,fundtype, fundmanager,cycle_type,rrin_hc,rrin_hc_rank," \
+                         "rrin_nhbd,rrin_nhbd_rank,rrin_hb,rrin_hb_rank,manager_startdate,manager_enddate,founddate,fund_manager_id) VALUES(:1, :2, :3,:4,:5,:6,:7,:8,:9,:10,:11,:12,:13,:14,:15)"
+            cu1.execute(insert_sql, rec)
+            fund_db_pra.commit()
 
 cu.close()
 cu1.close()

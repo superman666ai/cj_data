@@ -229,6 +229,28 @@ class ChoiceP(object):
 
         return weight_df['choice'].sum()
 
+    def indust_opt(self, code, start, end):
+        """
+        :param code:
+        :param start:
+        :param end:
+        :return:
+        """
+        weight_date = start[:4] + "-" + start[4:6] + "-" + start[6:]
+
+        sql = """
+                select * from fund_predict_sw1detail
+                where fundcode='{}' and tradedate='{}'and predict_weight !=0 
+                """.format(code, weight_date)
+        df = pd.DataFrame(sql_oracle.cu_pra_sel.execute(sql).fetchall(),
+                               columns=['基金代码', '日期', '行业代码', '权益占比', '行业名称'])
+
+        print(df.head())
+
+        return
+
+
+
 
 def data_list_func(datestart, dateend):
     # 转为日期格式
@@ -329,21 +351,25 @@ def main(year, code):
 ####传入起止时间,基金代码，指数代码，返回一个dataframe，里面包含起止时间内每天的择时能力的数值
 if __name__ == '__main__':
     #
-    sql = '''select distinct(fundcode) from fund_predict_sw1detail'''
-    code = pd.DataFrame(sql_oracle.cu_pra_sel.execute(sql).fetchall(), columns=['code'])
-    i = 0
-    number = len(code.values)
-    print(len(code.values))
-    for code in code.values:
-        i += 1
-        print('第 {} ------，总数{}'.format(i, number))
-        code = code[0]
-        year = 2019
-        print(code)
-        main(year, code)
+    # sql = '''select distinct(fundcode) from fund_predict_sw1detail'''
+    # code = pd.DataFrame(sql_oracle.cu_pra_sel.execute(sql).fetchall(), columns=['code'])
+    # i = 0
+    # number = len(code.values)
+    # print(len(code.values))
+    # for code in code.values:
+    #     i += 1
+    #     print('第 {} ------，总数{}'.format(i, number))
+    #     code = code[0]
+    #     year = 2019
+    #     print(code)
+    #     main(year, code)
     #
-    # obj = ChoiceP('166006', '20190719')
-    # print(obj.count())
-    #
+    start = '20190401'
+    end = '20190430'
+    code = '166006'
+
+    obj = ChoiceP('166006', '20190719')
+    obj.indust_opt(code, start, end)
+
 
 

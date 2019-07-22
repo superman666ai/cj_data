@@ -305,7 +305,9 @@ def main(year, code):
             del df['sum_new']
             del df['value_new']
 
-            df = df.tail(1)
+            # df = df.tail(1)
+            print(df)
+            break
             for k in df.values:
                 rec = (k[3], k[0], k[4], k[1], k[2])
 

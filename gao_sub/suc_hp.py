@@ -84,10 +84,7 @@ class HPfilter(object):
     def find_all_fundcode(self):
         sql = """select distinct(fundcode)
                 from fund_predict_sw1detail"""
-
         dbdata = sql_oracle.cu_pra_sel.execute(sql).fetchall()
-
-
 
         return dbdata
 
@@ -100,11 +97,17 @@ class HPfilter(object):
 
         all_fundcode = self.find_all_fundcode()
 
-        all_fundcode = ['163801']
-
-
+        # print(all_fundcode)
+        #
+        # all_fundcode = ['163801']
+        num = len(all_fundcode)
+        n = 1
 
         for code in all_fundcode:
+            print('-----{}----num:{}'.format(n, num))
+            n+=1
+            code = code[0]
+
             sql = """select tradedate, fundcode, sum(predict_weight) 
             from fund_predict_sw1detail where fundcode = '{}'
             group by  fundcode, tradedate order  by tradedate""".format(code)
@@ -116,21 +119,27 @@ class HPfilter(object):
 
             # 指数
             mark_df = self.market_fetch('000300')
+
             mark_df['日期'] = pd.to_datetime(mark_df['日期'])
 
-            df = pd.merge(df, mark_df, how="left", on="日期", )
+            df = pd.merge(df, mark_df, how="left", on="日期")
 
             # 指数补充空值
             df['指数收盘价'].fillna(method='bfill', inplace=True)
+            df['指数收盘价'].fillna(method='ffill', inplace=True)
+
 
             index = df['日期']
+
             df.set_index(index, inplace=True)
+            # print(df.head())
             lamta = 1600
 
             # 计算趋势
             df['权益占比'] = df['权益占比'].astype("float32")
 
             cycle, trend = sm.tsa.filters.hpfilter(df['权益占比'], lamta)
+
 
             _, df['权益占比趋势'] = cycle, trend
 
@@ -143,15 +152,15 @@ class HPfilter(object):
             df.reset_index(drop=True, inplace=True)
 
             df["日期"] = df["日期"].apply(lambda x: x.strftime("%Y%m%d"))
-            print(df.head())
 
             for i in df.values:
                 rec = (i[1], i[0], i[2], i[4], i[3], i[-1])
 
                 print(rec)
-                # db_insert_session.add_info(rec)
+                db_insert_session.add_info(rec)
 
-        # db_insert_session.finish()
+        db_insert_session.finish()
+
 
 
 
